@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dotfilesmgmt"
+version = "0.0.1"
+authors = [
+  { name="Kangjie YU"},
+]
+description = "Using Python virtual env and providing GIT_DIR, GIT_WORK_TREE environment variable for Git to manage dotfiles."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX"
+]
+
+[project.urls]
+Homepage = "https://github.com/YuKangjie/dotfilesmgmt"
+Issues = "https://github.com/YuKangjie/dotfilesmgmt/issues"
+
+[project.scripts]
+d5mgmt = "dotfilesmgmt.dotfilesmgmt:main"
