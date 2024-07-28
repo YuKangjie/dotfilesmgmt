@@ -4,9 +4,16 @@ import site
 from subprocess import STDOUT, Popen
 from pathlib import Path
 import shlex
+import shutil, os
+import re
+
 site
 
+__DEBUG__ = False
+# you can change the name of the executable of dotfilesmgmt from "d5mgmt" to what
+# you want in pyproject.toml
 BARE_REPO_NAME = ".dotfilesmgmt.git"
+
 
 def get_home_dir() -> None | str:
     home_dir = None
@@ -34,8 +41,8 @@ def set_env():
 
     dotfilesmgmt_dir = str(dotfilesmgmt_dir)
     set_git_env(GIT_DIR=dotfilesmgmt_dir, GIT_WORK_TREE=home_dir)
-    print(dotfilesmgmt_dir)
-    print(home_dir)
+    print("GIT_DIR:", dotfilesmgmt_dir)
+    print("GIT_WORK_DIR:", home_dir)
 
 
 def run_interactive_cli():
@@ -61,7 +68,7 @@ def run_interactive_cli():
             # args = shlex.split(line)
             if os.name == "posix":
                 args = shlex.split(line)
-                if __debug__:
+                if __DEBUG__:
                     print(args)
             else:
                 args = line
@@ -96,10 +103,12 @@ def run_subshell():
             proc.wait()  # cretical statement
     if sys.platform.startswith("linux") is True:
         if (PS1 := os.environ.get("PS1")) is None:
-            print("""Error: PS1 not found!
+            print(
+                """Error: PS1 not found!
                 Please export PS1 in your ~/.bashrc
                 Then `source ~/.bashrc` or `. ~/.bashrc`
-            """)
+            """
+            )
             raise RuntimeError
         PS1 = "(dotfilesmgmt)" + PS1
         os.environ["PS1"] = PS1
@@ -110,6 +119,7 @@ def run_subshell():
             raise
         else:
             proc.wait()
+
 
 def run_subshell2():
     """
@@ -126,6 +136,7 @@ def run_subshell2():
                 Write-Host ""(dotfilesmgmt) $(& $originalPromptFunc)"" -NoNewLine;
                 return ""`0"";
             }
+            "
             """
         try:
             proc = Popen(args)
@@ -135,10 +146,12 @@ def run_subshell2():
             proc.wait()  # cretical statement
     if sys.platform.startswith("linux") is True:
         if (PS1 := os.environ.get("PS1")) is None:
-            print("""Error: PS1 not found!
+            print(
+                """Error: PS1 not found!
                 Please export PS1 in your ~/.bashrc
                 Then `source ~/.bashrc` or `. ~/.bashrc`
-            """)
+            """
+            )
             raise RuntimeError
         PS1 = "(dotfilesmgmt)" + PS1
         os.environ["PS1"] = PS1
@@ -151,11 +164,54 @@ def run_subshell2():
             proc.wait()
 
 
+def run_subshell3():
+    if __DEBUG__:
+        print("in run_subshell3")
+    activate_dirname = os.path.dirname(os.readlink(shutil.which("d5mgmt")))
+
+    if "nt" == os.name:
+        activate_path = os.path.join(activate_dirname, "activate.ps1")
+        activate_path = re.sub(r"\\\\\?\\", "", activate_path)
+        # args = f'pwsh.exe -NoExit -NoProfile -File {activate_path}'
+        args = """pwsh.exe -NoExit -Command \"
+            & """ + f"{{{activate_path}}}\""
+
+        # args = """pwsh.exe -NoExit -NoProfile -Command "
+        #     $originalPromptFunc=(Get-Command prompt).ScriptBlock;
+        #     # function prompt {
+        #     #     Write-Host ""(dotfilesmgmt) $(& $originalPromptFunc)"" -NoNewLine;
+        #     #     return ""`0"";
+        #     # };
+        #     Import-Module posh-git
+        #     """
+        try:
+            proc = Popen(args)
+        except FileNotFoundError:
+            raise
+        else:
+            proc.wait()  # critical
+    elif "posix" == os.name:
+        activate_path = os.path.join(activate_dirname, "activate")
+        activate_path = re.sub(r"\\\\\?\\", "", activate_path)
+        try:
+            shell = None
+            if (shell := os.environ.get("SHELL")) is None:
+                raise FileExistsError("$SHELL environ variable is not found!")
+            proc = Popen([shell, activate_path])
+        except FileExistsError as e:
+            print(e, file=sys.stderr)
+            raise
+        else:
+            proc.wait()
+    print("exit dotfilesmgmt")
+
 def main():
-    print("??? modifitable???")
-    import shutil
-    print(shutil.which("python"))
-    print(__file__)
+    if __DEBUG__:
+        print("-- in main --")
+    if __DEBUG__:
+        print(shutil.which("python"))
+    if __DEBUG__:
+        print(__file__)
     try:
         set_env()
     except FileNotFoundError as e:
@@ -163,7 +219,7 @@ def main():
         return 1
     # run_interactive_cli()
     try:
-        run_subshell2()
+        run_subshell3()
     except (FileNotFoundError, RuntimeError):
         return 1
 
