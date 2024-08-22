@@ -12,7 +12,7 @@ site
 __DEBUG__ = False
 # you can change the name of the executable of dotfilesmgmt from "d5mgmt" to what
 # you want in pyproject.toml
-BARE_REPO_NAME = ".dotfilesmgmt.git"
+BARE_REPO_NAME = "dotfiles.git"
 
 
 def get_home_dir() -> None | str:
