@@ -32,11 +32,11 @@ Then if we run `git rev-parse --is-inside-work-tree` in home directory, we can g
 
 After we have managed dotfiles under the home directory already, just exit the subprocess shell (e.g., enter `exit`) and return to the shell which doesn't setting`GIT_DIR` and `GIT_WORK_TREE`.
 
-### If you meet oh-my-posh's "[git segment](https://ohmyposh.dev/docs/segments/scm/git)" display issue after running `d5mgmt` in PowerShell, how to solve it?
+### If you use oh-my-posh and meet its "[git segment](https://ohmyposh.dev/docs/segments/scm/git)" display issue after running `d5mgmt` in PowerShell, how to solve it?
 
 #### How to solve it? - two steps
 
-1. Install **posh-git** module and `Import-Module posh-git` in your pwsh \$profile.
+1. Install **posh-git** module and `Import-Module posh-git` in your pwsh **\$profile**. (see also: [about_Profiles](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.4))
 
 2. Insert the following JavaScript object before or after the **git-segment**'s object in the `"segments": []` list in the **oh-my-posh theme** which you used:
 
@@ -52,11 +52,11 @@ After we have managed dotfiles under the home directory already, just exit the s
 
 **Explain the "template" property above**: using the [cross-segment-template-properties](https://ohmyposh.dev/docs/configuration/templates#cross-segment-template-properties) `.Segments.Git` in this ["text" segment](https://ohmyposh.dev/docs/segments/system/text)'s template". If the `.Segments.Git` is empty and the `.Env.POSH_GIT_STRING` (the `$env:POSH_GIT_STRING` itself) is not empty, show the `$env:POSH_GIT_STRING` in the shell prompt.
 
-#### The issue of oh-my-posh's "git segment" which we can solve(bypass) by above method.
+#### The issue which we can solve(bypass) by above two steps.
 
 In PowerShell,   if we set the `$env:GIT_DIR` and `$env:GIT_WORK_TREE`, [**posh-git**](https://github.com/dahlbyk/posh-git) module can  recognize which is the bare repo and which is the work tree of the bare repo but oh-my-posh's [**git segment**](https://ohmyposh.dev/docs/segments/scm/git) can't. 
 
-Here is the example  showing the differences between **posh-git** and **oh-my-posh** (support the posh-git and oh-my-posh already installed and the `$env:GIT_DIR` and `$env:GIT_WORK_TREE` are not set at the beginning):
+Here is the example showing the different display result between **posh-git** and **oh-my-posh** (support the posh-git and oh-my-posh already installed and the `$env:GIT_DIR` and `$env:GIT_WORK_TREE` are not set at the beginning):
 
 ##### §About **posh-git**:
 
@@ -76,10 +76,10 @@ Here is the example  showing the differences between **posh-git** and **oh-my-po
 
 ##### §About **oh-my-posh**:
 
-1. Running `pwsh.exe` without options and without arguments in above step 1 will load **\$Profile** file automatically. If we have `oh-my-posh init pwsh --config "path\to\oh-my-posh\theme.json" | Invoke-Expression` in **$PROFILE**, The **oh-my-posh** will use **git segment** to show the git prompt string,
+1. Running `pwsh.exe`. Running it without options and without arguments in above step 1 will load **\$Profile** file automatically. If we have `oh-my-posh init pwsh --config "path\to\oh-my-posh\theme.json" | Invoke-Expression` in **$PROFILE**, The **oh-my-posh** will use **git segment** to show the git prompt string,
 
 2. Same as above §[About posh-git](#about-posh-git) step 2.
 3. `cd  ~/.dotfiles.git` as above step 3, but now the git prompt is display by **git segment**.
 4. Same as above step 4, after we set those two variable, the **git segment** is <mark>missing in shell prompt</mark> although we can also get the value of`$env:POSH_GIT_STRING`provided by **posh-git** in stdout by run `$env:POSH_GIT_STRING`.
 
-Solution see [How to solve it?](#how-to-solve-it---two-steps) above.
+Solution see [How to solve it? - two steps](#how-to-solve-it---two-steps) above.
