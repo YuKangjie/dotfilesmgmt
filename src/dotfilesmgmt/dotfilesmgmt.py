@@ -6,6 +6,7 @@ from pathlib import Path
 import shlex
 import shutil, os
 import re
+from tempfile import NamedTemporaryFile
 
 site
 
@@ -191,19 +192,64 @@ def run_subshell3():
         else:
             proc.wait()  # critical
     elif "posix" == os.name:
+        # activate file detect
+        activate_str = None
         activate_path = os.path.join(activate_dirname, "activate")
-        activate_path = re.sub(r"\\\\\?\\", "", activate_path)
-        try:
-            shell = None
-            if (shell := os.environ.get("SHELL")) is None:
-                raise FileExistsError("$SHELL environ variable is not found!")
-            proc = Popen([shell, activate_path])
-        except FileExistsError as e:
-            print(e, file=sys.stderr)
-            raise
-        else:
-            proc.wait()
-    print("exit dotfilesmgmt")
+        if __DEBUG__:
+            print(activate_path)
+        with open(activate_path, "r") as f:
+            activate_str = f.read()
+
+        # shell detect
+        shell = None
+        if (shell := os.environ.get("SHELL")) is None:
+            print("$SHELL environ variable is not found!", file=sys.stderr)
+            return 1
+        shell_name = re.search(r"[^/]+$", shell).group(0)
+        if __DEBUG__:
+            print(shell_name)
+        if shell_name not in ["bash"]:
+            print("this program only support bash in posix platfrom now", file=sys.stderr)
+            return 1
+
+        # run subshell
+        if shell_name == "bash":
+            profile_str = None
+            try:
+                for profile in (profiles := ['~/.bash_profile', '~/.bash_login', '~/.profile']):
+                    if os.path.isfile((profile_path := os.path.expanduser(profile))):
+                        with open(profile_path, "r") as f:
+                            profile_str = f.read()
+                            if __DEBUG__:
+                                print(f"the profile file is {profile_path}")
+                            break
+            except Exception as e:
+                print(f"Error in readling profile: {e}", file=sys.stderr)
+
+            temp_file = None
+            temp_file_path = None
+            try:
+                temp_file = NamedTemporaryFile(mode='w+', delete=True)
+                temp_file_path = temp_file.name
+                temp_file.write(profile_str + activate_str)
+                if temp_file.seekable(): temp_file.seek(0) # key point
+            except Exception as e:
+                print(f"Error about temp file: {e}", file=sys.stderr)
+            else:
+                try:
+                    if __DEBUG__:
+                        proc = Popen(["cat", str(temp_file_path)])
+                    else:
+                        proc = Popen([shell, "--rcfile", temp_file_path])
+                except RuntimeError as e:
+                    print(e, file=sys.stderr)
+                else:
+                    proc.wait()
+                    # stdout, stderr = proc.communicate()
+                    # print(f"stdout: {stdout}"); print(f"stderr {stderr}")
+            finally:
+                if temp_file is not None and not temp_file.closed:
+                    temp_file.close()
 
 def main():
     if __DEBUG__:
@@ -222,7 +268,8 @@ def main():
         run_subshell3()
     except (FileNotFoundError, RuntimeError):
         return 1
-
+    else:
+        print("exit dotfilesmgmt")
 
 if __name__ == "__main__":
     sys.exit(main())
