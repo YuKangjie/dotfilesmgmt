@@ -53,7 +53,7 @@ can:
   modification before you run `d5mgmt`:  
   ![alt text](/README.mdd/image2.png)  
   *Press `exit` to return to the shell before you run `d5mgmt`*
-* **All done**✔️.
+* **All done**✔️✨ 🌟 ✨.
 
 ### What does this package do? | Feature Approach, and Usage
 
