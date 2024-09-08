@@ -2,6 +2,8 @@
 
 ## Introduction
 
+> **Note**: This package is only available in PowerShell on Windows and bash on Linux(or WSL) **now** 😂.
+
 When we want to use git to manage the dotfiles in our home directory, we want the home directory to be treated as a git repo, but other times we don't want it to be treated as a repo by git.
 
 Inspired by the article [Managing Dotfiles With Git](https://gpanders.com/blog/managing-dotfiles-with-git/) which written by one of the maintainer of [Neovim](https://neovim.io/), I write this piece of code of the similar mechanism to help we use Git to maintain dotfiles under home directory.
@@ -12,16 +14,40 @@ You can use it in PowerShell or Bash in current version, other shells have not b
 
 * Install the `pipx` (reference: <https://pipx.pypa.io/stable/>)`
 * Install this package by `pipx install dotfilesmgmt`. if you want to edit the source code to adjust this package's behavior, just run `pipx install --editable dotfilesmgmt`
-* Create a bare repo named ".dotfiles.git" under the home directory by `git init --bare ~/.dotfiles.git`.
-* If you use bash, please export your \$PS1 variable such as appending `export PS1` in your
-`~/.bashrc`.
-* Run the `d5mgmt` to enter the subprocess shell which has `GIT_WORK_TREE` and `GIT_DIR` environment variable setting.
-
+* Create a bare repo named `.dotfiles.git` used by this package under the home directory by `git init --bare ~/.dotfiles.git`.
+* If you use bash, please export your \$PS1 variable such as appending(adding) `export PS1` in your
+`~/.bashrc` profile file.
+* Run `d5mgmt` to enter the subprocess interactive shell which has `GIT_WORK_TREE` and `GIT_DIR` environment variable setting.
+  Now you are in here: ![alt text](/README.mdd/image.png)
 The subprocess shell will have the **shell prompt** start with `(dotfilesmgmt)`string, then you
 can:
 
-* Use git to manager your dotfiles in the subprocess shell.
-* Enter `exit` to exit the subprocess shell(this action will also exit the d5mgmt program) and return to the origin shell without `GIT_WORK_TREE` and `GIT_DIR` setting.
+* Use git to manager your dotfiles in the subprocess shell.  
+  ~~Best~~My Practice: 
+  * append the following two lines to your `.dotfiles.git/info/exclude` file at first:  
+  	```
+	# untrack all files under the home directory
+	*
+	# track the relative path of this file itself which relative to the
+	# GIT_WORK_TREE (i.e.: home dir in our context)
+	!/.dotfiles.git/info/exclude
+	```
+  * add the file named "exclude" to our dotfiles.git repo by `git add -f exclude` and `git commit` it.  
+  * an example of tracking another file under home dir:
+	```
+	# make ~/.condarc could be tracked (i.e.: not ignored by git)
+	# by appending the line contains "!/.condarc" to the file 'exclude'
+	echo "!/.condarc" >> ~/.dotfiles.git/info/exclude
+	# track the ~/.condarc
+	git add ~/.condarc
+	# update all tracked files (include the 'exclude' file itself)
+	git add -u
+	# create the snapshot
+	git commit
+	```
+* Enter `exit` to exit the subprocess shell(this action will also exit the d5mgmt program) and return to the origin shell without `GIT_WORK_TREE` and `GIT_DIR` setting.  
+  Now you are in here:  
+  ![alt text](/README.mdd/image2.png)
 * All done.
 
 ### What does this package do? | Feature Approach, and Usage

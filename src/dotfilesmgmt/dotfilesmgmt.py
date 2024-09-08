@@ -4,14 +4,14 @@ import site
 from subprocess import STDOUT, Popen
 from pathlib import Path
 import shlex
-import shutil, os
+import shutil
 import re
 from tempfile import NamedTemporaryFile
 
 site
 
 __DEBUG__ = False
-# you can change the name of the executable of dotfilesmgmt from "d5mgmt" to what
+# you can change the name of the executable "d5mgmt" to what
 # you want in pyproject.toml
 BARE_REPO_NAME = ".dotfiles.git"
 
@@ -59,7 +59,7 @@ def run_interactive_cli():
                 print(exit)
                 continue
         except EOFError:
-            print("----exit the gotfilesmgmt----")
+            print("----exit the dotfilesmgmt----")
             break
         else:
             if line == "":
@@ -83,9 +83,9 @@ def run_interactive_cli():
 def run_subshell():
     """
     * [args, on windows as string due to implement in CreateProcess()](https://docs.python.org/zh-cn/3/library/subprocess.html#popen-constructor)
-    * [about pwsh | commmand line options and arguments](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pwsh?view=powershell-7.4)
+    * [about pwsh | command line options and arguments](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pwsh?view=powershell-7.4)
     * [pwsh prompt construct](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.4)
-    * [about about quoting rules | single quote VS double quote, escape doube quote within double quote](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.4)
+    * [about about quoting rules | single quote VS double quote, escape double quote within double quote](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.4)
     * [special char - empty space](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7.4)
     """
     if "nt" == os.name:
@@ -101,7 +101,7 @@ def run_subshell():
         except FileNotFoundError:
             raise
         else:
-            proc.wait()  # cretical statement
+            proc.wait()  # crucial statement
     if sys.platform.startswith("linux") is True:
         if (PS1 := os.environ.get("PS1")) is None:
             print(
@@ -125,9 +125,9 @@ def run_subshell():
 def run_subshell2():
     """
     * [args, on windows as string due to implement in CreateProcess()](https://docs.python.org/zh-cn/3/library/subprocess.html#popen-constructor)
-    * [about pwsh | commmand line options and arguments](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pwsh?view=powershell-7.4)
+    * [about pwsh | command line options and arguments](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_pwsh?view=powershell-7.4)
     * [pwsh prompt construct](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_prompts?view=powershell-7.4)
-    * [about about quoting rules | single quote VS double quote, escape doube quote within double quote](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.4)
+    * [about about quoting rules | single quote VS double quote, escape double quote within double quote](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_quoting_rules?view=powershell-7.4)
     * [special char - empty space](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_special_characters?view=powershell-7.4)
     """
     if "nt" == os.name:
@@ -144,7 +144,7 @@ def run_subshell2():
         except FileNotFoundError:
             raise
         else:
-            proc.wait()  # cretical statement
+            proc.wait()  # crucial statement
     if sys.platform.startswith("linux") is True:
         if (PS1 := os.environ.get("PS1")) is None:
             print(
@@ -192,7 +192,7 @@ def run_subshell3():
         else:
             proc.wait()  # critical
     elif "posix" == os.name:
-        # activate file detect
+        # step1: activate file detect
         activate_str = None
         activate_path = os.path.join(activate_dirname, "activate")
         if __DEBUG__:
@@ -200,7 +200,7 @@ def run_subshell3():
         with open(activate_path, "r") as f:
             activate_str = f.read()
 
-        # shell detect
+        # step2: shell detect
         shell = None
         if (shell := os.environ.get("SHELL")) is None:
             print("$SHELL environ variable is not found!", file=sys.stderr)
@@ -209,10 +209,10 @@ def run_subshell3():
         if __DEBUG__:
             print(shell_name)
         if shell_name not in ["bash"]:
-            print("this program only support bash in posix platfrom now", file=sys.stderr)
+            print("this program only support bash in posix platform now", file=sys.stderr)
             return 1
 
-        # run subshell
+        # step3: shell profile detect
         if shell_name == "bash":
             profile_str = None
             try:
@@ -224,32 +224,35 @@ def run_subshell3():
                                 print(f"the profile file is {profile_path}")
                             break
             except Exception as e:
-                print(f"Error in readling profile: {e}", file=sys.stderr)
-
-            temp_file = None
-            temp_file_path = None
+                print(f"Error in reading profile: {e}", file=sys.stderr)
+        else:
+            return 1
+        
+        temp_file = None
+        temp_file_path = None
+        try:
+            temp_file = NamedTemporaryFile(mode='w+', delete=True)
+            temp_file_path = temp_file.name
+            temp_file.write(profile_str + activate_str)
+            if temp_file.seekable():
+                temp_file.seek(0) # key point
+        except Exception as e:
+            print(f"Error about temp file: {e}", file=sys.stderr)
+        else:
             try:
-                temp_file = NamedTemporaryFile(mode='w+', delete=True)
-                temp_file_path = temp_file.name
-                temp_file.write(profile_str + activate_str)
-                if temp_file.seekable(): temp_file.seek(0) # key point
-            except Exception as e:
-                print(f"Error about temp file: {e}", file=sys.stderr)
-            else:
-                try:
-                    if __DEBUG__:
-                        proc = Popen(["cat", str(temp_file_path)])
-                    else:
-                        proc = Popen([shell, "--rcfile", temp_file_path])
-                except RuntimeError as e:
-                    print(e, file=sys.stderr)
+                if __DEBUG__:
+                    proc = Popen(["cat", str(temp_file_path)])
                 else:
-                    proc.wait()
-                    # stdout, stderr = proc.communicate()
-                    # print(f"stdout: {stdout}"); print(f"stderr {stderr}")
-            finally:
-                if temp_file is not None and not temp_file.closed:
-                    temp_file.close()
+                    proc = Popen([shell, "--rcfile", temp_file_path])
+            except RuntimeError as e:
+                print(e, file=sys.stderr)
+            else:
+                proc.wait()
+                # stdout, stderr = proc.communicate()
+                # print(f"stdout: {stdout}"); print(f"stderr {stderr}")
+        finally:
+            if temp_file is not None and not temp_file.closed:
+                temp_file.close()
 
 def main():
     if __DEBUG__:
