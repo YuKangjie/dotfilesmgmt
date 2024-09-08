@@ -35,7 +35,7 @@ can:
 	```
 	See also: [Ignoring Files](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#_ignoring)
 	in ProGit chapter 2.2
-  * add the file named "exclude" to our dotfiles.git repo by `git add -f exclude` and `git commit` it.  
+  * add the file named "exclude" to our `.dotfiles.git` repo by `git add -f exclude` and `git commit` it.  
   * an example of tracking another file under home dir:
 	```
 	# make ~/.condarc could be tracked (i.e.: not ignored by git)
