@@ -1,4 +1,4 @@
-## # Using dotfilesmgmt to manager your dotfiles(configuration files) under your home directory
+# Using dotfilesmgmt to manager your dotfiles(configuration files) under your home directory
 
 ## Introduction
 
