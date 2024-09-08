@@ -23,7 +23,7 @@ The subprocess shell will have the **shell prompt** start with `(dotfilesmgmt)`s
 can:
 
 * Use git to manager your dotfiles in the subprocess shell.  
-  ~~Best~~My Practice: 
+  (~~Best~~)My Practice: 
   * append the following two lines to your `.dotfiles.git/info/exclude` file at first:  
   	```
 	# untrack all files under the home directory
@@ -48,7 +48,7 @@ can:
 * Enter `exit` to exit the subprocess shell(this action will also exit the d5mgmt program) and return to the origin shell without `GIT_WORK_TREE` and `GIT_DIR` setting.  
   Now you are in here:  
   ![alt text](/README.mdd/image2.png)
-* All done.
+* **All done**.
 
 ### What does this package do? | Feature Approach, and Usage
 
