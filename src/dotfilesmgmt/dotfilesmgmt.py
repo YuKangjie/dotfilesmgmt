@@ -168,7 +168,15 @@ def run_subshell2():
 def run_subshell3():
     if __DEBUG__:
         print("in run_subshell3")
-    activate_dirname = os.path.dirname(os.readlink(shutil.which("d5mgmt")))
+
+    if not os.path.islink(temp_path := shutil.which("d5mgmt")):
+        print("""
+            d5mgmt relays on venv, please use `pipx install dotfilesmgmt` to install dotfilesmgmt.
+            See README.md for details on this package.
+        """)
+        return 1
+
+    activate_dirname = os.path.dirname(os.readlink(temp_path))
 
     if "nt" == os.name:
         activate_path = os.path.join(activate_dirname, "activate.ps1")
