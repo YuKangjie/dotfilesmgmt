@@ -19,11 +19,12 @@ You can use it in PowerShell or Bash in current version, other shells have not b
 `~/.bashrc` profile file.
 * Run `d5mgmt` to enter the subprocess interactive shell which has `GIT_WORK_TREE` and `GIT_DIR` environment variable setting.
   Now you are in here: ![alt text](/README.mdd/image.png)
+
 The subprocess shell will have the **shell prompt** start with `(dotfilesmgmt)`string, then you
 can:
 
 * Use git to manager your dotfiles in the subprocess shell.  
-  (~~Best~~)My Practice: 
+  ~~Best~~ My Practice: 
   * append the following two lines to your `.dotfiles.git/info/exclude` file at first:  
   	```
 	# untrack all files under the home directory
@@ -32,6 +33,8 @@ can:
 	# GIT_WORK_TREE (i.e.: home dir in our context)
 	!/.dotfiles.git/info/exclude
 	```
+	See also: [Ignoring Files](https://git-scm.com/book/en/v2/Git-Basics-Recording-Changes-to-the-Repository#_ignoring)
+	in ProGit chapter 2.2
   * add the file named "exclude" to our dotfiles.git repo by `git add -f exclude` and `git commit` it.  
   * an example of tracking another file under home dir:
 	```
@@ -45,10 +48,12 @@ can:
 	# create the snapshot
 	git commit
 	```
-* Enter `exit` to exit the subprocess shell(this action will also exit the d5mgmt program) and return to the origin shell without `GIT_WORK_TREE` and `GIT_DIR` setting.  
-  Now you are in here:  
-  ![alt text](/README.mdd/image2.png)
-* **All done**.
+* Enter `exit`. Enter `exit` will exit the subprocess shell which has `GIT_WORK_TREE` and `GIT_DIR`
+  setting, exit the d5mgmt program and go back to the origin shell with no above two variables
+  modification before you run `d5mgmt`:  
+  ![alt text](/README.mdd/image2.png)  
+  *Press `exit` to return to the shell before you run `d5mgmt`*
+* **All done**✔️.
 
 ### What does this package do? | Feature Approach, and Usage
 
